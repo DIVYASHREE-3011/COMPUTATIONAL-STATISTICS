@@ -1,0 +1,23 @@
+import pandas as pd
+import seaborn as sns
+
+# Load the Iris dataset
+iris = sns.load_dataset('iris')
+
+# Print the first 10 records
+print("First 10 records of the Iris dataset:")
+print(iris.head(10))
+
+# Print the total number of rows and columns
+num_rows, num_columns = iris.shape
+print(f"\nTotal number of rows: {num_rows}")
+print(f"Total number of columns: {num_columns}")
+
+# Print the column names
+column_names = iris.columns.tolist()
+print(f"\nColumn names: {column_names}")
+
+# Find the mean of all the attributes
+# Exclude the 'species' column as it is categorical
+mean_values = iris.drop(columns='species').mean()
+print(f"\nMean of all attributes:\n{mean_values}")
