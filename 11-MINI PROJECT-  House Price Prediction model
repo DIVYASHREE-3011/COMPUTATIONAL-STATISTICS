@@ -1,0 +1,64 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+# Load the dataset
+df = pd.read_csv('house_price_dataset.csv')  # Make sure the file is in the same folder
+print("Dataset Preview:")
+print(df.head())  # Display the first 5 rows
+
+# Check for missing values
+print("\nChecking for missing values:")
+print(df.isnull().sum())
+
+# Preprocessing: Convert categorical columns into numerical values
+if 'Location' in df.columns:
+    df = pd.get_dummies(df, columns=['Location'], drop_first=True)
+
+# Define features (X) and target variable (y)
+X = df.drop('Price', axis=1)  # All columns except 'Price'
+y = df['Price']  # The target variable
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train a Linear Regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+mse = mean_squared_error(y_test, y_pred)
+print(f"\nMean Squared Error: {mse}")
+print("\nPredictions vs Actual Prices:")
+comparison = pd.DataFrame({'Actual': y_test.values, 'Predicted': y_pred})
+print(comparison.head())
+
+# Function to predict price based on user input (size and location)
+def predict_price():
+    # Get user input for size and location
+    size = float(input("Enter the size of the house (in sq ft): "))
+    location = input("Enter the location (Suburbs, Downtown, Countryside): ")
+
+    # Convert the location to one-hot encoded format
+    location_dict = {'Suburbs': [1, 0], 'Downtown': [0, 1], 'Countryside': [0, 0]}
+    
+    if location in location_dict:
+        location_encoded = location_dict[location]
+    else:
+        print("Invalid location entered. Please enter one of: Suburbs, Downtown, or Countryside.")
+        return
+
+    # Prepare the feature input for prediction
+    # [size, bedrooms, bathrooms, year, suburb=1, downtown=0, countryside=0]
+    new_house = [[size, 3, 2, 2005] + location_encoded]
+
+    # Predict the price
+    predicted_price = model.predict(new_house)
+    print(f"Predicted Price for the house with size {size} sq ft in {location}: ${predicted_price[0]:,.2f}")
+
+# Call the function to predict the price
+predict_price()
